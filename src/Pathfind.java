@@ -8,6 +8,11 @@ import javax.swing.JTextArea;
 
 public class Pathfind {
 
+    private static boolean allTrue(boolean[] arr) {
+        for (int i = 0; i < arr.length; ++i) if (!arr[i]) return false;
+        return true;
+    }
+
     /**
      * Return the shortest path between a and b
      * Using Dijkstra's Algorithm
@@ -16,7 +21,7 @@ public class Pathfind {
      * @return
      */
     public static Pair<int[], double[]> dijkstras(Graph g) {
-        int numVisited = 1; // already visited first
+        boolean[] visited = new boolean[g.numNodes];
         Pair<int[], double[]> paths = new Pair<int[], double[]>(new int[g.numNodes], new double[g.numNodes]);
         for (int i = 0; i < g.numNodes; ++i) {
             paths.key[i] = -1; //indicate lack of path to
@@ -29,7 +34,7 @@ public class Pathfind {
 
         //if all visited, cut
         //if no more pahts, cut
-        while (numVisited < g.numNodes && cur >= 0) {
+        while (!allTrue(visited) && cur >= 0) {
             //check each edge of cur
             //compare paths.val[i] to paths.val[cur] + g.matrix[cur][i]
             //if second is lesser, replace paths.val[i] with it and paths.key[i] with cur
@@ -48,14 +53,14 @@ public class Pathfind {
             for (int i = 0; i < g.numNodes; ++i) {
                 if (paths.val[i] >= 0 && i != cur) {
                     //a path has been discovered and its not the current node
-                    if (nxt == -1 || paths.val[nxt] > paths.val[i]) {
+                    if ((nxt == -1 || paths.val[nxt] > paths.val[i]) && !visited[i]) {
                         nxt = i;
                     }
                 }
             }
- 
+            
+            visited[cur] = true;
             cur = nxt;
-            ++numVisited;
         }        
         return paths;
     }
@@ -64,14 +69,25 @@ public class Pathfind {
         BufferedWriter w = new BufferedWriter(new FileWriter(f));
 
         String tmp = "";
-        tmp += " |\tNode \t|\tPred. \t|\tDist.\t|\n";
+        tmp += " |\tNode \t|\tPred. \t|\tDist. \t|\n";
         for (int i = 0; i < paths.key.length; ++i) {
             if (paths.key[i] == -1) {
-                tmp += " |\t" + i + " \t|\tNone \t|\t" + paths.val[i] + " \t|\n";
+                tmp += " |\t" + i + "   \t|\tNone \t|\t" + paths.val[i] + "   \t|\n";
             } else {
-                tmp += " |\t" + i + " \t|\t" + paths.key[i] + " \t|\t" + paths.val[i] + " \t|\n";
+                tmp += " |\t" + i + "   \t|\t" + paths.key[i] + "   \t|\t" + paths.val[i] + "   \t|\n";
             }
         }
+
+        String tmp2 = "";
+        int cur = paths.key.length - 1;
+        tmp2 += " \tCost: " + paths.val[cur];
+        while (cur != 0) {
+            tmp2 = " => (" + cur + ")" + tmp2;
+            cur = paths.key[cur];
+        }
+        tmp2 = "(" + cur + ")" + tmp2;
+
+        tmp += "\n" + tmp2;
 
         ps.print(tmp);
         w.write(tmp);
