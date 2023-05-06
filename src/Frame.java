@@ -256,6 +256,7 @@ public class Frame extends JFrame {
     public void initFileChooser() {
         System.out.println("Load File Button Clicked");
         fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File("./lib"));
         fileChooser.showOpenDialog(this);
         chosenFile = fileChooser.getSelectedFile().getPath();
         System.out.println("Chosen File: " + chosenFile);
